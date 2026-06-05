@@ -84,6 +84,11 @@ main:
         loadi r1, r0        ; pega endereço da palavra
         
     call ApagaTela
+    
+    loadn r0, #644      ; posição na tela
+    loadn r2, #1024         ; cor
+
+    call ImprimeStr    
 
     mov r7, r1 ; guarda em r7 o endereço da palavra (NÃO USAR O R7)
     
@@ -160,16 +165,16 @@ Compara:
     push r4
     push r5
 
-    loadn r3, #0 ; meio que um "ponteiro" para percorrer a string
-
+    loadn r3, #0
+            
     LoopCompara:
         mov r2, r7 ; r2 tem o endereço da primeira letra da palavra-alvo para a gente poder ir mudando
-        add r2, r2, r3 ; atualiza o endereço da letra da string 
+        add r2, r2, r3 ; atualiza o endereço
 
-        loadi r1, r2   ; r1 tem a primeira letra da 
+        loadi r1, r2   ; r1 tem a primeira letra da
         cmp r1, r0 ; se a letra digitada for uma das letras da palavra-alvo, então
         jeq Continua 
-
+        
         inc r3 ; atualiza o ponteiro
 
         loadn r5, #5 ; critério de parada para o loop
@@ -177,89 +182,15 @@ Compara:
         cmp r3, r5
         jne LoopCompara
 
-        ; Erradas
-        load r5, pontErradas ; vê qual o valor do ponteiro
-        loadn r3, #Erradas
-
-        loadn r1, #2
-
-        mod r4, r5, r1 ; ponteiro está em um lugar ímpar ou par
-        loadn r1, #0
-        cmp r4, r1 ; compara se o ponteiro aponta para uma posição ímpar ou par
-        jeq virgula
-
-        ; r5 volta atualizado ou não de vírgula
-        ; r0 tem a letra digitada 
-        add r4, r3, r5 ; endereço Erradas[pontErradas]
-        storei r4, r0 ; coloco a letra em Iguais
-
-        inc r5
-            
-        store pontErradas, r5 ; atualizo o ponteiro
-
-        jmp RtsCompara  
+    loadn r5, #'o'
+    loadn r4, #404
+    outchar r5, r4
+    jmp RtsCompara
 
     Continua:
-        cmp r6, r3 ; se a letra digitada está na posição 2, compara a posição correspondente da letra na palavra-alvo
-        jeq iguais 
-
-        ; Certas, mas em posições diferentes 
-
-        load r5, pontCertas ; vê qual o valor do ponteiro
-        loadn r3, #Certas
-
-        loadn r1, #2
-
-        mod r4, r5, r1 ; ponteiro está em um lugar ímpar ou par
-        loadn r1, #0
-        cmp r4, r1 ; compara se o ponteiro aponta para uma posição ímpar ou par
-        jeq virgula
-
-        ; r5 volta atualizado ou não de vírgula
-        ; r0 tem a letra digitada 
-        add r4, r3, r5 ; endereço Certas[pontCertas]
-        storei r4, r0 ; coloco a letra em Certas
-
-        inc r5
-            
-        store pontCertas, r5 ; atualizo o ponteiro
-
-        jmp RtsCompara        
-
-        iguais: 
-            load r5, pontIguais ; vê qual o valor do ponteiro
-            loadn r3, #Iguais
-
-            loadn r1, #2
-
-            mod r4, r5, r1 ; ponteiro está em um lugar ímpar ou par
-            loadn r1, #0
-            cmp r4, r1 ; compara se o ponteiro aponta para uma posição ímpar ou par
-            jeq virgula
-
-            ; r5 volta atualizado ou não de vírgula
-            ; r0 tem a letra digitada 
-            add r4, r3, r5 ; endereço Iguais[pontIguais]
-            storei r3, r0 ; coloco a letra em Iguais
-
-            inc r5
-            
-            store pontIguais, r5 ; atualizo o ponteiro
-
-            jmp RtsCompara
-
-
-    virgula:
-        ; r5 ponteiro das palavras
-        ; r3 endereço de Iguais/ Erradas/ Certas
-        loadn r1, #44 ; vírgula na tabela ascii
-        add r4, r3, r5 ; endereço Iguais[pontIguais]
-        storei r4, r1
-        
-        ; atualizar o ponteiro
-        inc r5 ; r5 guarda o valor do pontIguais
-        
-        rts
+        loadn r5, #'b'
+        loadn r4, #444
+        outchar r5, r4
 
     RtsCompara:
         pop r5
