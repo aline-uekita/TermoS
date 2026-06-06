@@ -3,63 +3,31 @@ jmp main
 ; Variáveis 
 
 ; Endereço das palavras e palavras 
-palavra0: string "teste"
-palavra1: string "pizza"
+palavra0: string "livro"
+palavra1: string "pisca"
 
 ; Banco de palavras 
 palavras: var #2
     static palavras + #0, #palavra0
     static palavras + #1, #palavra1
   
-; Letras certas e erradas
-Certas: var #10
-    static Certas + #0, #0
-    static Certas + #1, #0
-    static Certas + #2, #0
-    static Certas + #3, #0
-    static Certas + #4, #0
-    static Certas + #5, #0
-    static Certas + #6, #0
-    static Certas + #7, #0
-    static Certas + #8, #0
-    static Certas + #9, #0
+; Palavra digitada
 
-pontCertas: var #1
+Resultado: var #6
+    static Resultado + #0, #0
+    static Resultado + #1, #0
+    static Resultado + #2, #0
+    static Resultado + #3, #0
+    static Resultado + #4, #0
+    static Resultado + #5, #0
 
-Iguais: var #10
-    static Iguais + #0, #0
-    static Iguais + #1, #0
-    static Iguais + #2, #0
-    static Iguais + #3, #0
-    static Iguais + #4, #0
-    static Iguais + #5, #0
-    static Iguais + #6, #0
-    static Iguais + #7, #0
-    static Iguais + #8, #0
-    static Iguais + #9, #0
 
-pontIguais: var #1
-
-Erradas: var #10
-    static Erradas + #0, #0
-    static Erradas + #1, #0
-    static Erradas + #2, #0
-    static Erradas + #3, #0
-    static Erradas + #4, #0
-    static Erradas + #5, #0
-    static Erradas + #6, #0
-    static Erradas + #7, #0
-    static Erradas + #8, #0
-    static Erradas + #9, #0
-
-pontErradas: var #1
+pontResultado: var #1
 
 main:
     ; Inicialização 
     loadn r0, #0 
-    store pontCertas, r0
-    store pontErradas, r0
-    store pontIguais, r0
+    store pontResultado, r0
 
     loadn r1, #tela4Linha0      ;Endereco onde comeca a primeira linha do cenario
     loadn r2, #30720       ;cor cinza
@@ -94,22 +62,11 @@ main:
     
     call Jogo
     
-    ; Imprimir certos, iguais e errados
-    loadn r1, #Certas
-    loadn r0, #644      ; posição na tela
-    loadn r2, #1024         ; cor
+    ; Imprimi o Resultado
 
-    call ImprimeStr
-
-    loadn r1, #Iguais
+    loadn r1, #Resultado
     loadn r0, #684      ; posição na tela
-    loadn r2, #1024         ; cor
-
-    call ImprimeStr
-
-    loadn r1, #Erradas
-    loadn r0, #724      ; posição na tela
-    loadn r2, #0  ; cor vazio 
+    loadn r2, #0         ; cor
 
     call ImprimeStr
     
@@ -182,25 +139,48 @@ Compara:
         cmp r3, r5
         jne LoopCompara
 
-    load r4, pontErradas ; ponteiro das erradas
-    loadn r5, #Erradas ; endereço do vetor Erradas
-    add r5, r4, r5 ; endereço das Erradas[pontErradas]
+    load r4, pontResultado ; ponteiro do resultado
+    loadn r5, #Resultado ; endereço do vetor Resultado
+    add r5, r4, r5 ; endereço das Resultado[pontResultado]
 
-    loadn r3, #1024 ; cor azul
-    add r0, r0, r3 ; a letra errada ficou azul
-    storei r5, r0 ; guarda a letra no Erradas[pontErradas]
+    loadn r3, #0 ; cor branco
+    add r0, r0, r3 ; a letra errada ficou cinza escuro
     
-    inc r4 ; atualiza o ponteiro
-    loadn r5, #pontErradas
-    storei r5, r4 ; guarda o novo valor
+    storei r5, r0 ; guarda a letra no Resultado[pontResultado]
+    
     jmp RtsCompara
 
     Continua:
-        loadn r5, #'b'
-        loadn r4, #444
-        outchar r5, r4
+        ; r6 tem a "posição da letra digitada"
+        cmp r3, r6 ; compara se as posições das letras da palavra são iguais
+        jeq Iguais
+        
+        load r4, pontResultado ; ponteiro das Resultado
+        loadn r5, #Resultado ; endereço do vetor Resultado
+        add r5, r4, r5 ; endereço das Resultado[pontResultado]
 
-    RtsCompara:
+        loadn r3, #1024 ; cor azul escuro
+        add r0, r0, r3 ; a letra na posição errada ficou azul escuro
+        storei r5, r0 ; guarda a letra no Resultado[pontResultado]
+        
+        jmp RtsCompara
+        
+        Iguais:
+            load r4, pontResultado ; ponteiro das Resultado
+            loadn r5, #Resultado ; endereço do vetor Resultado
+            add r5, r4, r5 ; endereço das Resultado[pontResultado]
+
+            loadn r3, #7168 ; cor azul claro
+            add r0, r0, r3 ; a letra igual ficou azul claro
+            storei r5, r0 ; guarda a letra no Resultado[pontResultado]
+
+            jmp RtsCompara
+
+    RtsCompara:                
+        inc r4 ; atualiza o ponteiro
+        loadn r5, #pontResultado
+        storei r5, r4 ; guarda o novo valor
+            
         pop r5
         pop r4
         pop r3
