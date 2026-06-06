@@ -25,10 +25,6 @@ Resultado: var #6
 pontResultado: var #1
 
 main:
-    ; Inicialização 
-    loadn r0, #0 
-    store pontResultado, r0
-
     loadn r1, #tela4Linha0      ;Endereco onde comeca a primeira linha do cenario
     loadn r2, #30720       ;cor cinza
     call ImprimeTela
@@ -51,27 +47,50 @@ main:
         add r0, r0, r3
         loadi r1, r0        ; pega endereço da palavra
         
-    call ApagaTela
-    
-    loadn r0, #644      ; posição na tela
-    loadn r2, #1024         ; cor azul
-
-    call ImprimeStr    
+    call ApagaTela  
 
     mov r7, r1 ; guarda em r7 o endereço da palavra (NÃO USAR O R7)
     
-    call Jogo
+    loadn r0, #444      ; posição na tela
+    loadn r3, #0 ; vai funcionar meio que como um contador para o jogo
+    loadn r4, #40 ; para ir para a linha de baixo
     
-    ; Imprimi o Resultado
-
-    loadn r1, #Resultado
-    loadn r0, #604      ; posição na tela
-    loadn r2, #0         ; cor
-
-    call ImprimeStr
+    Loopmain:
+        call ZeraPonteiro
     
+        mov r5, r0 ; deixa o endereço da primeira palavra a ser printada na tela "usável" na função jogo
+        
+        call Jogo
+        
+        ; Imprime o Resultado
+
+        loadn r1, #Resultado
+        ; r0 já tem o endereço da primeira letra      
+        loadn r2, #0         ; cor
+
+        call ImprimeStr
+        
+        add r0, r0, r4 ; atualiza o endereço da primeira letra para ir na linha debaixo  
+        
+        inc r3
+        
+        loadn r1, #5 ; critério de parada
+        cmp r1, r3
+        jne Loopmain
+        
     halt
+        
+;--------------------------------------------
+;              Zera Ponteiro
+;-------------------------------------------- 
+ZeraPonteiro:
+    push r0
     
+        loadn r0, #0 
+        store pontResultado, r0
+        
+    pop r0
+    rts
 ;--------------------------------------------
 ;                  JOGO
 ;--------------------------------------------
@@ -86,7 +105,7 @@ Jogo:
         LoopJogo:
             ; r0 == letra que a pessoa digitar
             inchar r0 ; esperar a pessoa digitar
-            loadn r1, #604 ;posição da letra
+            mov r1, r5 ; copia o enderço da primeira letra a ser digitada e impressa no 
             add r1, r1, r6 ; avança para imprimir a letra no lado 
             outchar r0, r1
             
