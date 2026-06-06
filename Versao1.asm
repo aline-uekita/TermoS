@@ -86,7 +86,7 @@ main:
     call ApagaTela
     
     loadn r0, #644      ; posição na tela
-    loadn r2, #1024         ; cor
+    loadn r2, #1024         ; cor azul
 
     call ImprimeStr    
 
@@ -109,7 +109,7 @@ main:
 
     loadn r1, #Erradas
     loadn r0, #724      ; posição na tela
-    loadn r2, #1024         ; cor
+    loadn r2, #0  ; cor vazio 
 
     call ImprimeStr
     
@@ -185,6 +185,9 @@ Compara:
     load r4, pontErradas ; ponteiro das erradas
     loadn r5, #Erradas ; endereço do vetor Erradas
     add r5, r4, r5 ; endereço das Erradas[pontErradas]
+
+    loadn r3, #1024 ; cor azul
+    add r0, r0, r3 ; a letra errada ficou azul
     storei r5, r0 ; guarda a letra no Erradas[pontErradas]
     
     inc r4 ; atualiza o ponteiro
