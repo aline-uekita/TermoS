@@ -182,9 +182,14 @@ Compara:
         cmp r3, r5
         jne LoopCompara
 
-    loadn r5, #'o'
-    loadn r4, #404
-    outchar r5, r4
+    load r4, pontErradas ; ponteiro das erradas
+    loadn r5, #Erradas ; endereço do vetor Erradas
+    add r5, r4, r5 ; endereço das Erradas[pontErradas]
+    storei r5, r0 ; guarda a letra no Erradas[pontErradas]
+    
+    inc r4 ; atualiza o ponteiro
+    loadn r5, #pontErradas
+    storei r5, r4 ; guarda o novo valor
     jmp RtsCompara
 
     Continua:
