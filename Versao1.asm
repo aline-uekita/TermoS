@@ -65,7 +65,7 @@ main:
     ; Imprimi o Resultado
 
     loadn r1, #Resultado
-    loadn r0, #684      ; posição na tela
+    loadn r0, #604      ; posição na tela
     loadn r2, #0         ; cor
 
     call ImprimeStr
@@ -143,8 +143,8 @@ Compara:
     loadn r5, #Resultado ; endereço do vetor Resultado
     add r5, r4, r5 ; endereço das Resultado[pontResultado]
 
-    loadn r3, #0 ; cor branco
-    add r0, r0, r3 ; a letra errada ficou cinza escuro
+    loadn r3, #256 ; cor vermelha
+    add r0, r0, r3 ; a letra errada ficou vermelha
     
     storei r5, r0 ; guarda a letra no Resultado[pontResultado]
     
