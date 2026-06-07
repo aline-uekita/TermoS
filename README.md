@@ -7,5 +7,7 @@ Após isso, o programa irá devolver em vermelho as letras que não pertencem a 
 Se a pessoa avinhar em 5 tentativas ou menos, a pessoa caso, caso contrário, perde.
 
 Exemplo:
+
 <img width="310" height="283" alt="image" src="https://github.com/user-attachments/assets/2828a922-e6f3-4ea0-9788-3265a36fa9fd" />
+
 A palavra-alvo (livro) foi advinhada em 4 tentativase e ficou tudo em azul, após isso apareceria a mensagem de vitória na tela. Durante as tentativas, foram apresentados os resultados em vermelho, azul claro e azul escuro.
