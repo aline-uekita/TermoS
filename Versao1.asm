@@ -26,6 +26,8 @@ pontResultado: var #1
 
 FlagIguais: var #5
 
+restart: var #1
+
 main:
     loadn r1, #tela4Linha0      ;Endereco onde comeca a primeira linha do cenario
     loadn r2, #30720       ;cor cinza
@@ -49,42 +51,45 @@ main:
         add r0, r0, r3
         loadi r1, r0        ; pega endereço da palavra
         
-    call ApagaTela  
-
-    mov r7, r1 ; guarda em r7 o endereço da palavra (NÃO USAR O R7)
+        store restart, r1 ; tive que criar essa variável para fazer o restart funcionar e não alterar a lógica do código
+        
     
-    loadn r0, #444      ; posição na tela
-    loadn r3, #0 ; vai funcionar meio que como um contador para o jogo
-    loadn r4, #40 ; para ir para a linha de baixo
-    
-    Loopmain:
-        call Zera
-    
-        mov r5, r0 ; deixa o endereço da primeira palavra a ser printada na tela "usável" na função jogo
-        
-        call Jogo
-        
-        ; Imprime o Resultado
+    Restart:    
+        call ApagaTela  
 
-        loadn r1, #Resultado
-        ; r0 já tem o endereço da primeira letra      
-        loadn r2, #0         ; cor
+        load r7, restart ; guarda em r7 o endereço da palavra (NÃO USAR O R7)
+        
+        loadn r0, #444      ; posição na tela
+        loadn r3, #0 ; vai funcionar meio que como um contador para o jogo
+        loadn r4, #40 ; para ir para a linha de baixo
+        
+        Loopmain:
+            call Zera
+        
+            mov r5, r0 ; deixa o endereço da primeira palavra a ser printada na tela "usável" na função jogo
+            
+            call Jogo
+            
+            ; Imprime o Resultado
 
-        call ImprimeStr
+            loadn r1, #Resultado
+            ; r0 já tem o endereço da primeira letra      
+            loadn r2, #0         ; cor
+
+            call ImprimeStr
+            
+            call Ganha ; função para ver se a pessoa ganhou o jogo
+            
+            add r0, r0, r4 ; atualiza o endereço da primeira letra para ir na linha debaixo  
+            
+            inc r3
+            
+            loadn r1, #5 ; critério de parada
+            cmp r1, r3
+            jne Loopmain
+            
+            call Fracassou
         
-        call Ganha ; função para ver se a pessoa ganhou o jogo
-        
-        add r0, r0, r4 ; atualiza o endereço da primeira letra para ir na linha debaixo  
-        
-        inc r3
-        
-        loadn r1, #5 ; critério de parada
-        cmp r1, r3
-        jne Loopmain
-        
-        call Fracassou
-        
-    halt
         
 ;--------------------------------------------
 ;          ZERA PONTEIROS E FLAGS
@@ -293,34 +298,105 @@ Ganhou:
         loadn r1, #tela5Linha0      ;Endereco onde comeca a primeira linha do cenario
         loadn r2, #30720       ;cor cinza
         call ImprimeTela
+        
+    loadn r2, #0                    ;inicializa o contador com 0 
+
+    loadn r0, #'s'
+    loadn r3, #'n'
+
+    LoopGanhou:
+        inchar r1                   ;lê o que a pessoa escreveu
+    
+        inc r2                      ;contador++
+    
+        cmp r1, r3                  ;se ele digitou 'n'
+        jeq Fim
+
+        cmp r1, r0                  ;se ele digitou 's'
+        jeq SimG
+
+        jmp LoopGanhou             ;se ele não digitou/digitou outra coisa
+
+    SimG:
+        loadn r5, #2               ;tamanho do banco de palavrass
+        mod r3, r2, r5              ;deixo o valor entre 0 e 1
+
+        loadn r0, #palavras     ; endereço do banco de palavras
+        add r0, r3, r0          ; endereço palavras[r3]
+        loadi r1, r0            ; AQUI tem o endereço da palavra-alvo que estava no palavras[r3]
+        
+        store restart, r1       ; guardei o valor do endereço da palavra-alvo na variável restart
+
+        pop r3
+        pop r2
+        pop r1
+        pop r0
+        
+        pop r0                      ; mais um r0 para desimpilhar tudo para ir direto na main 
+
+        jmp Restart
+
     
     pop r2
     pop r1
     pop r0
-    pop r0 ; um pop a mais para desimpilhar tudo 
+    rts
     
-    halt
 ;--------------------------------------------
 ;               FRACASSOU
 ;--------------------------------------------
 Fracassou:
-    push r0
-    push r1
-    push r2
-    
-        call ApagaTela
+    call ApagaTela
         
         loadn r1, #telaFinalPLinha0      ;Endereco onde começa a primeira linha do cenario
         loadn r2, #30720       ;cor cinza
         call ImprimeTela
-    
-    pop r2
-    pop r1
-    pop r0
-    pop r0 ; um pop a mais para desimpilhar tudo 
-    
-    halt
+        
+    loadn r2, #0                    ;inicializa o contador com 0 
 
+    loadn r0, #'s'
+    loadn r3, #'n'
+
+    LoopFracassou:
+        inchar r1                   ;lê o que a pessoa escreveu
+    
+        inc r2                      ;contador++
+    
+        cmp r1, r3                  ;se ele digitou 'n'
+        jeq Fim
+
+        cmp r1, r0                  ;se ele digitou 's'
+        jeq SimF
+
+        jmp LoopFracassou             ;se ele não digitou/digitou outra coisa
+
+    SimF:
+        loadn r5, #2               ;tamanho do banco de palavrass
+        mod r3, r2, r5              ;deixo o valor entre 0 e 1
+
+        loadn r0, #palavras     ; endereço do banco de palavras
+        add r0, r3, r0          ; endereço palavras[r3]
+        loadi r1, r0            ; AQUI tem o endereço da palavra-alvo que estava no palavras[r3]
+        
+        store restart, r1       ; guardei o valor do endereço da palavra-alvo na variável restart
+
+        pop r3
+        pop r2
+        pop r1
+        pop r0
+        
+        pop r0                      ; mais um r0 para desimpilhar tudo para ir direto na main 
+
+        jmp Restart
+
+
+;--------------------------------------------
+;                 FIM
+;--------------------------------------------
+Fim:
+    ; seria legal uma tela para finalizar o jogo
+    halt
+    
 ;--------------------------------------------
 ;             Imprime Tela
 ;--------------------------------------------
