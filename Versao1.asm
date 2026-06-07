@@ -24,6 +24,8 @@ Resultado: var #6
 
 pontResultado: var #1
 
+FlagIguais: var #5
+
 main:
     loadn r1, #tela4Linha0      ;Endereco onde comeca a primeira linha do cenario
     loadn r2, #30720       ;cor cinza
@@ -56,7 +58,7 @@ main:
     loadn r4, #40 ; para ir para a linha de baixo
     
     Loopmain:
-        call ZeraPonteiro
+        call Zera
     
         mov r5, r0 ; deixa o endereço da primeira palavra a ser printada na tela "usável" na função jogo
         
@@ -70,6 +72,8 @@ main:
 
         call ImprimeStr
         
+        call Ganha ; função para ver se a pessoa ganhou o jogo
+        
         add r0, r0, r4 ; atualiza o endereço da primeira letra para ir na linha debaixo  
         
         inc r3
@@ -78,18 +82,40 @@ main:
         cmp r1, r3
         jne Loopmain
         
+        call Fracassou
+        
     halt
         
 ;--------------------------------------------
-;              Zera Ponteiro
+;          ZERA PONTEIROS E FLAGS
 ;-------------------------------------------- 
-ZeraPonteiro:
+Zera:
     push r0
+    push r1
+    push r2
+    push r3
     
         loadn r0, #0 
         store pontResultado, r0
         
+        loadn r1, #0 ; contador
+        loadn r2, #5 ; critério de parada
+        loadn r3, #FlagIguais ; endereço da primeira FlagIguais
+        
+        LoopFlag:
+            storei r3, r0
+            
+            inc r3
+            inc r1
+            
+            cmp r1, r2
+            jne LoopFlag
+            
+    pop r3
+    pop r2
+    pop r1    
     pop r0
+    
     rts
 ;--------------------------------------------
 ;                  JOGO
@@ -192,6 +218,15 @@ Compara:
             loadn r3, #7168 ; cor azul claro
             add r0, r0, r3 ; a letra igual ficou azul claro
             storei r5, r0 ; guarda a letra no Resultado[pontResultado]
+            
+            ; como já terminou tudo o que tinha com essa letra
+            ; posso mexer em tudo menos, r4 (valor do ponteiro atual) , r6 (posição de letra digitada) , r7 (endereço palavra-alvo)
+            ; ligo a flag que nessa palavra, a pessoa acertou a posição e letra
+            
+            loadn r1, #FlagIguais
+            add r1, r6, r1 ; endereço do FlagIguais[r6]
+            loadn r2, #1 ; ligar a flag para conferir se a pessoa ganha
+            storei r1, r2; flag ligada!
 
             jmp RtsCompara
 
@@ -208,6 +243,84 @@ Compara:
 
         rts
         
+;--------------------------------------------
+;                 Ganhou
+;-------------------------------------------- 
+Ganha:
+    push r0
+    push r1
+    push r2
+    push r3
+    push r4
+        
+        loadn r0, #FlagIguais
+        loadn r1, #0 ; Verifica se a flag está ligada
+        loadn r3, #0 ; contador
+        loadn r4, #5 ; critério de parada
+        
+        LoopGanha:
+            loadi r2, r0
+            
+            cmp r2, r1
+            jeq RtsGanha
+            
+            inc r0
+            inc r3
+            
+            cmp r3, r4
+            jne LoopGanha
+            
+            call Ganhou
+    
+    RtsGanha:
+        pop r4    
+        pop r3
+        pop r2
+        pop r1
+        pop r0
+        rts
+        
+;--------------------------------------------
+;                 GANHOU
+;--------------------------------------------
+Ganhou:
+    push r0
+    push r1
+    push r2
+    
+        call ApagaTela
+        
+        loadn r1, #tela5Linha0      ;Endereco onde comeca a primeira linha do cenario
+        loadn r2, #30720       ;cor cinza
+        call ImprimeTela
+    
+    pop r2
+    pop r1
+    pop r0
+    pop r0 ; um pop a mais para desimpilhar tudo 
+    
+    halt
+;--------------------------------------------
+;               FRACASSOU
+;--------------------------------------------
+Fracassou:
+    push r0
+    push r1
+    push r2
+    
+        call ApagaTela
+        
+        loadn r1, #telaFinalPLinha0      ;Endereco onde começa a primeira linha do cenario
+        loadn r2, #30720       ;cor cinza
+        call ImprimeTela
+    
+    pop r2
+    pop r1
+    pop r0
+    pop r0 ; um pop a mais para desimpilhar tudo 
+    
+    halt
+
 ;--------------------------------------------
 ;             Imprime Tela
 ;--------------------------------------------
@@ -298,7 +411,8 @@ ApagaTela:
 
 ;--------------------------------------------
 ;                   Telas
-;--------------------------------------------   
+;--------------------------------------------  
+; Menu 
 tela4Linha0 : string "                                        "
 tela4Linha1 : string "                                        "
 tela4Linha2 : string "                                        "
@@ -329,3 +443,67 @@ tela4Linha26 : string "                                        "
 tela4Linha27 : string "                                        "
 tela4Linha28 : string "                                        "
 tela4Linha29 : string "                                        "
+
+; Venceu
+tela5Linha0 : string "                                        "
+tela5Linha1 : string "                                        "
+tela5Linha2 : string "               VOCE VENCEU              "
+tela5Linha3 : string "                                        "
+tela5Linha4 : string "        AGORA ESTA PRONTO PARA O        "
+tela5Linha5 : string "              ATAQUE ZUMBI              "
+tela5Linha6 : string "                                        "
+tela5Linha7 : string "                   l                    "
+tela5Linha8 : string "                   |l                   "
+tela5Linha9 : string "                   | l                  "
+tela5Linha10 : string "                  y|  l                 "
+tela5Linha11 : string "                 y||   l                "
+tela5Linha12 : string "                y ||    l               "
+tela5Linha13 : string "               y  ||     l              "
+tela5Linha14 : string "              y   ||      l             "
+tela5Linha15 : string "             y    ||       l            "
+tela5Linha16 : string "            y  S  ||        l           "
+tela5Linha17 : string "           y      ||         l          "
+tela5Linha18 : string "          y_______||    O     l         "
+tela5Linha19 : string "           y l    ||__ y|l ____l        "
+tela5Linha20 : string "          | S |   ||    |               "
+tela5Linha21 : string "         __l_y____||___y_l______        "
+tela5Linha22 : string "         l                     y        "
+tela5Linha23 : string "          l       SIMOES      y         "
+tela5Linha24 : string "           l_________________y          "
+tela5Linha25 : string "                                        "
+tela5Linha26 : string "                                        "
+tela5Linha27 : string "   GOSTARIA DE JOGAR NOVAMENTE? <s/n>   "
+tela5Linha28 : string "                                        "
+tela5Linha29 : string "                                        "
+
+;Tela Perdeu
+telaFinalPLinha0  : string "                                        "
+telaFinalPLinha1  : string "                                        "
+telaFinalPLinha2  : string "                                        "
+telaFinalPLinha3  : string "         O TUBARAO TE PEGOU EM          "
+telaFinalPLinha4  : string "                                        "
+telaFinalPLinha5  : string "                                        "
+telaFinalPLinha6  : string "               GAME OVER                "
+telaFinalPLinha7  : string "                                        "
+telaFinalPLinha8  : string "      QUER TENTAR NOVAMENTE? <s/n>      "
+telaFinalPLinha9  : string "                                        "
+telaFinalPLinha10 : string "                                        "
+telaFinalPLinha11 : string "                                        "
+telaFinalPLinha12 : string "                                        "
+telaFinalPLinha13 : string "                                        "
+telaFinalPLinha14 : string "        ____                            "
+telaFinalPLinha15 : string "       yx  xl       _____               "
+telaFinalPLinha16 : string "       l __ y      y    y               "
+telaFinalPLinha17 : string "        l__y      y     l               "
+telaFinalPLinha18 : string "         y|l      |      y              "
+telaFinalPLinha19 : string "        y | l     |      l              "
+telaFinalPLinha20 : string "       y  |  l    |       |             "
+telaFinalPLinha21 : string "          |       |       |             "
+telaFinalPLinha22 : string "         y l      |       |             "
+telaFinalPLinha23 : string "        y   l     |       |             "
+telaFinalPLinha24 : string "       y     l     l______y             "
+telaFinalPLinha25 : string "                                        "
+telaFinalPLinha26 : string "                                        "
+telaFinalPLinha27 : string "                                        "
+telaFinalPLinha28 : string "                                        "
+telaFinalPLinha29 : string "                                        "
